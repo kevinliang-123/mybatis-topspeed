@@ -1,0 +1,10 @@
+<spring:eval expression="${tableDataEle.attrMap['tjText'].attrCovertValue}"></spring:eval>
+这个eval与普通el表达式的区别是：
+实际eval就是相当月${},只不过放到eval中就不需要加这个${}了，即
+<spring:eval expression="tableDataEle.attrMap['tjText'].attrCovertValue"></spring:eval>
+但是，当这个tableDataEle.attrMap['tjText'].attrCovertValue的内容本身就是一个el表达式呢？
+这个实际就相当于在返回的表达式外再加一个${}，就相当于动态运行表达式了！！！，所以是很有价值的。
+也可以用这种混合模式：
+<spring:eval expression="${dynamicJspListConfigVO.dynamicModelName}[tableDataEle.attrMap['tjText'].attrName]"></spring:eval>
+${dynamicJspListConfigVO.dynamicModelName}部分是动态，假设他的值是aa，结果相当于
+${aa[tableDataEle.attrMap['tjText'].attrName]}
