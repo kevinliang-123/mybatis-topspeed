@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>extMapper</name>
+	<filePath>src/main/resources/mappings/${lastPackageName}/${moduleName}</filePath>
+	<fileName>${ClassName}Dao.xml</fileName>
+	<content><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${packageName}.${moduleName}.dao.${ClassName}Dao">
+     <!-- 此mapper为扩展父类mapper使用，当父mapper无法满足业务需要时，在此定义同名sqlID可以覆盖父类的sql，也可新增SQL,需要在extdao.java 中增加相应接口即可  --> 
+    
+	 
+</mapper>]]>
+	</content>
+</template>

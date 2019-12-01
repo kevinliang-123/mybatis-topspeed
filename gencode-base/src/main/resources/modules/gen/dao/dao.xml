@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>dao</name>
+	<filePath>src/main/java/${packageName}/${moduleName}/dao/${subModuleName}</filePath>
+	<fileName>${ClassName}MainDao.java</fileName>
+	<content><![CDATA[
+package ${packageName}.${moduleName}.dao<#if subModuleName != "">.${subModuleName}</#if>;
+
+import com.tengjie.common.persistence.CrudDao;
+import com.tengjie.common.persistence.annotation.MyBatisDao;
+import ${packageName}.${moduleName}.entity<#if subModuleName != "">.${subModuleName}</#if>.${ClassName};
+
+/**
+ * ${functionName}此DAO接口，禁止修改，，如需要修改请在子Dao中新增或覆盖原接口；
+ * @author ${functionAuthor}
+ * @version ${functionVersion}
+ */
+@MyBatisDao
+public interface ${ClassName}MainDao extends CrudDao<${ClassName}> {
+
+	
+	
+}]]>
+	</content>
+</template>

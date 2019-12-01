@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<!-- 生成分类 -->
+	<category>
+			<dict value="curd/controller.xml"></dict>
+			<dict value="curd/service.xml"></dict>
+			<dict value="dao/dao.xml"></dict>
+			<dict value="dao/extDao.xml"></dict>
+			<dict value="curd/viewForm.xml"></dict>
+			<dict value="curd/viewList.xml"></dict>
+			<dict value="dao/entity.xml"></dict>
+			<dict value="dao/mapper.xml"></dict>
+			<dict value="dao/extMapper.xml"></dict>
+
+	</category>
+	<!-- java类型 -->
+	<javaType>
+		<dict value="String" label="String"/>
+		<dict value="Long" label="Long"/>
+		<dict value="Integer" label="Integer"/>
+		<dict value="Double" label="Double"/>
+		<dict value="java.math.BigDecimal" label="Decimal"/>
+		<dict value="java.util.Date" label="Date"/>
+		<dict value="com.jujienet.modules.sys.entity.User" label="User"/>
+		<dict value="com.jujienet.modules.sys.entity.Office" label="Office"/>
+		<dict value="com.jujienet.modules.sys.entity.Area" label="Area"/>
+		<dict value="This" label="ThisObj" description="生成当前对象"/>
+	</javaType>
+	<!-- 查询类型 -->
+	<queryType>
+		<dict value="=" label="="/>
+		<dict value="!=" label="!="/>
+		<dict value="&gt;" label="&gt;"/>
+		<dict value="&gt;=" label="&gt;="/>
+		<dict value="&lt;" label="&lt;"/>
+		<dict value="&lt;=" label="&lt;="/>
+		<dict value="between" label="Between"/>
+		<dict value="like" label="Like"/>
+		<dict value="left_like" label="Left Like"/>
+		<dict value="right_like" label="Right Like"/>
+	</queryType>
+	<!-- 字段显示类型 -->
+	<showType>
+		<dict value="input" label="单行文本"/>
+		<dict value="textarea" label="多行文本"/>
+		<dict value="umeditor" label="富文本编辑器"/>
+		<dict value="select" label="下拉选项"/>
+		<dict value="radiobox" label="单选按钮"/>
+		<dict value="checkbox" label="复选框"/>
+		<dict value="dateselect" label="日期选择"/>
+		<dict value="userselect" label="人员选择"/>
+		<dict value="officeselect" label="部门选择"/>
+		<dict value="areaselect" label="区域选择"/>
+		<dict value="treeselect" label="树选择控件"/>
+		<dict value="fileImage" label="图片上传选择"/>
+		<dict value="fileselect" label="文件上传选择"/>
+		<dict value="gridselect" label="grid选择框(自定义java对象)"/>
+	</showType>
+	<!-- 验证类型 -->
+	<validateType>
+		<dict value="" label=""/>
+		<dict value="string" label="字符串"/>
+		<dict value="email" label="电子邮件"/>
+		<dict value="url" label="网址"/>
+		<dict value="date" label="日期"/>
+		<dict value="dateISO" label="日期(ISO)"/>
+		<dict value="number" label="数字"/>
+		<dict value="digits" label="整数"/>
+		<dict value="creditcard" label="信用卡号"/>
+	</validateType>
+</config>

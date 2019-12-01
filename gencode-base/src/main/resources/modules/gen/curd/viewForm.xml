@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>viewForm</name>
+	<filePath>src/main/webapp/webpage/${lastPackageName}/${moduleName?lower_case}/${subModuleName}</filePath>
+	<fileName>${className}Form.jsp</fileName>
+	<content><![CDATA[
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>${functionNameSimple}管理</title>
+	<meta name="decorator" content="default"/>
+	<#list table.columnList as c>
+		<#if c.showType == "umeditor">
+			 <link href="${"$"}{ctxStatic}/summernote/summernote.css" rel="stylesheet">
+			 <link href="${"$"}{ctxStatic}/summernote/summernote-bs3.css" rel="stylesheet">
+			 <script src="${"$"}{ctxStatic}/summernote/summernote.min.js"></script>
+			 <script src="${"$"}{ctxStatic}/summernote/summernote-zh-CN.js"></script>
+			 <#break/>
+		</#if>
+	</#list>
+	<script type="text/javascript">
+		var validateForm;
+		function doSubmit(){//回调函数，在编辑和保存动作时，供openDialog调用提交表单。
+		  if(validateForm.form()){
+		 	<#list table.columnList as c>
+				<#if c.showType == "umeditor">
+			  $("#${c.javaFieldId}").val($("#rich_${c.javaFieldId}").next().find(".note-editable").html());//取富文本的值
+		   		</#if>
+			</#list>
+			  $("#inputForm").submit();
+			  return true;
+		  }
+		  return false;
+		}
+		$(document).ready(function() {
+			validateForm = $("#inputForm").validate({
+				submitHandler: function(form){
+					loading('正在提交，请稍等...');
+					form.submit();
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			
+				
+			});
+			
+			<#list table.columnList as c>
+				<#if c.showType == "dateselect">
+					laydate({
+			            elem: '#${c.javaFieldId}', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+			            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+			        });
+				</#if>
+				<#if c.showType == "umeditor">
+				//富文本初始化
+			$('#rich_${c.javaFieldId}').summernote({
+                lang: 'zh-CN'
+            });
+
+			$("#rich_${c.javaFieldId}").next().find(".note-editable").html(  $("#${c.javaFieldId}").val());
+			$("#rich_${c.javaFieldId}").next().find(".note-editable").html(  $("#rich_${c.javaFieldId}").next().find(".note-editable").text());
+
+				</#if>
+			</#list>
+			<#list jspFormDocumentReadyJsList as jsM>
+	        ${jsM?replace("\n","\n	         ")!}
+            </#list>
+		});
+		<#list jspFormJsList as jsM>
+	    ${jsM?replace("\n","\n	     ")!}
+        </#list>
+	</script>
+</head>
+
+<body class="hideScroll">
+		<form:form id="inputForm" <#if (table.ifHasImage)??><#if table.ifHasImage=='1'>enctype="multipart/form-data"</#if> </#if> modelAttribute="${className}" action="${r"${ctx}"}/${urlPrefix}/save" method="post" class="form-horizontal">
+		<form:hidden path="id"/>
+		<#list table.hiddenColumnList as h>
+		<form:hidden path="${h.javaFieldId}" <#if h.hasHiddenValue == "1">value="${h.hiddenValue}"</#if> />
+		</#list>
+		<sys:message content="${r"${message}"}"/>	
+		<table class="table table-bordered  table-condensed dataTables-example dataTable no-footer">
+		   <tbody>
+		<#assign x=0 />
+		<#assign cn="${columnNum}" />
+		<#list table.columnList as c>
+			 <#assign x=x+1 />
+			<#if x%(cn?number)==1||(cn?number)==1> 
+				<tr <#if jspFormTrIdMap[c.javaFieldId]?? >${jspFormTrIdMap[c.javaFieldId]}</#if>>
+			</#if>
+					<td class="width-15 active"><label class="pull-right"><#if c.isNull != "1"><font color="red">*</font></#if>${c.comments}：</label></td>
+					<td class="width-35">
+			<#if c.showType == "input">
+						<form:input path="${c.javaFieldId}" htmlEscape="false"<#if c.maxLength?? && c.maxLength != ""> maxlength="${c.maxLength}"</#if> <#if  c.minLength?? && c.minLength != ""> minlength="${c.minLength}"</#if> <#if c.maxValue?? && c.maxValue != ""> max="${c.maxValue}"</#if> <#if c.minValue?? && c.minValue != ""> min="${c.minValue}"</#if> class="form-control <#if c.isNull != "1">required</#if><#if c.validateType?? && c.validateType != ""><#if c.validateType != "string"> ${c.validateType}</#if></#if>"/>
+			<#elseif c.showType == "textarea">
+						<form:textarea path="${c.javaFieldId}" htmlEscape="false" rows="4"<#if c.maxLength?? && c.maxLength != ""> maxlength="${c.maxLength}"</#if> <#if c.minLength?? && c.minLength != ""> minlength="${c.minLength}"</#if> <#if c.maxValue?? && c.maxValue != ""> max="${c.maxValue}"</#if> <#if c.minValue?? && c.minValue != ""> min="${c.minValue}"</#if> class="form-control <#if c.isNull != "1">required</#if><#if c.validateType?? && c.validateType != ""><#if c.validateType != "string"> ${c.validateType}</#if></#if>"/>
+			<#elseif c.showType == "select">
+			            <form:select path="${c.javaFieldId}"  class="form-control m-b <#if c.isNull != "1">required</#if>">
+					     <form:option value="" label=""/>
+					     ${c.selectShowTypeContent?replace("\n","\n					")!}
+				        </form:select>
+			<#elseif c.showType == "upWindowSelect">
+				        <form:input path="${c.javaFieldId}" htmlEscape="false"    class="form-control <#if c.isNull != "1">required</#if>"  style="display:none;"/>
+					    <a href="#" id="${c.javaFieldId}SelectPage" onclick="${c.javaFieldId}SelectPage()" class="btn btn-white btn-sm">				    
+					    <c:if test="${"$"}{not empty ${className}.${c.javaFieldId} }">${c.selectShowTypeContent}</c:if>
+						<c:if test="${"$"}{empty ${className}.${c.javaFieldId} }"><i class="fa fa-plus"></i>选择${c.comments}</c:if></a> 
+						<br><span class="tip">仅能选择一个${c.comments}</span>					
+            <#elseif c.showType == "fileImage"> 
+                          <up:single name="single" echo="${"$"}{${c.javaFieldId}}"  accept="image/*"></up:single> 
+			<#elseif c.showType == "checkbox">
+						<form:checkboxes path="${c.javaFieldId}" items="${"$"}{fns:getDictList('${c.dictType}')}" itemLabel="label" itemValue="value" htmlEscape="false" class="i-checks <#if c.isNull != "1">required</#if>"/>
+			<#elseif c.showType == "radiobox">
+						<form:radiobuttons path="${c.javaFieldId}" items="${"$"}{fns:getDictList('${c.dictType}')}" itemLabel="label" itemValue="value" htmlEscape="false" class="i-checks <#if c.isNull != "1">required</#if>"/>
+			<#elseif c.showType == "dateselect">
+						<input id="${c.javaFieldId}" name="${c.javaFieldId}" type="text" maxlength="20" class="laydate-icon form-control layer-date <#if c.isNull != "1">required</#if>"
+							value="<fmt:formatDate value="${"$"}{${className}.${c.javaFieldId}}" pattern="yyyy-MM-dd HH:mm:ss"/>"/>
+			<#elseif c.showType == "userselect">
+						<sys:treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}}"
+							title="用户" url="/sys/office/treeData?type=3" cssClass="form-control <#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "officeselect">
+						<sys:treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}}"
+							title="部门" url="/sys/office/treeData?type=2" cssClass="form-control <#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "areaselect">
+						<sys:treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}}"
+							title="区域" url="/sys/area/treeData" cssClass="form-control <#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "fileselect">
+						<form:hidden id="${c.simpleJavaField}" path="${c.javaFieldId}" htmlEscape="false"<#if c.dataLength != "0"> maxlength="${c.dataLength}"</#if> class="form-control"/>
+						<sys:ckfinder input="${c.simpleJavaField}" type="files" uploadPath="/${moduleName}<#if subModuleName != "">/${subModuleName}</#if>/${className}" selectMultiple="true"/>
+			<#elseif c.showType == "gridselect">
+						<sys:gridselect url="${r"${ctx}"}/${urlPrefix}/select${c.simpleJavaField}" id="${c.simpleJavaField}" name="${c.javaFieldId}"  value="${"$"}{${className}.${c.simpleJavaField}.id}"  title="选择${c.comments}" labelName="${c.simpleJavaField}.${c.searchKey}" 
+						 labelValue="${"$"}{${className}.${c.simpleJavaField}.${c.searchKey}}" cssClass="form-control required" fieldLabels="${c.fieldLabels}" fieldKeys="${c.fieldKeys}" searchLabel="${c.searchLabel}" searchKey="${c.searchKey}" ></sys:gridselect>
+			<#elseif c.showType == "umeditor">
+						<form:hidden path="${c.javaFieldId}"/>
+						<div id="rich_${c.javaFieldId}">
+                           
+
+                        </div>
+			</#if>
+					</td>
+			<#if x%(cn?number)==0> 
+				</tr>
+			</#if>
+
+		</#list>
+		<#if x%2==1 > 
+					<td class="width-15 active"></td>
+		   			<td class="width-35" ></td>
+		  		</tr>
+		</#if>
+		 	</tbody>
+		</table>
+	</form:form>
+</body>
+</html>]]>
+	</content>
+</template>

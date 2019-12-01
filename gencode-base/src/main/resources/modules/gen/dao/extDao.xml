@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>extDao</name>
+	<filePath>src/main/java/${packageName}/${moduleName}/dao/${subModuleName}</filePath>
+	<fileName>${ClassName}Dao.java</fileName>
+	<content><![CDATA[
+package ${packageName}.${moduleName}.dao<#if subModuleName != "">.${subModuleName}</#if>;
+
+import com.tengjie.common.persistence.CrudDao;
+import com.tengjie.common.persistence.annotation.MyBatisDao;
+import ${packageName}.${moduleName}.entity<#if subModuleName != "">.${subModuleName}</#if>.${ClassName};
+
+/**
+ * ${functionName}子DAO接口，所有无法基类无法实现的业务SQL，全部在子DAO中实现 ；
+ * @author ${functionAuthor}
+ * @version ${functionVersion}
+ */
+@MyBatisDao
+public interface ${ClassName}Dao extends ${ClassName}MainDao {
+
+	 
+	
+}]]>
+	</content>
+</template>

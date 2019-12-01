@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>mapper</name>
+	<filePath>src/main/resources/mappings/${lastPackageName}/${moduleName}</filePath>
+	<fileName>${ClassName}MainDao.xml</fileName>
+	<content><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${packageName}.${moduleName}.dao.${ClassName}MainDao">
+     <!-- 基础mapper父类，禁止修改，如需要扩展请在对应的extmapper中实现  --> 
+    <!-- 输出字段列 -->
+	<sql id="${className}Columns">
+		<#assign columnField>
+			<#list table.columnList as c>
+		a.${c.name} AS "${c.javaFieldId}",
+			</#list>
+			<#list table.columnList as c>
+				<#if c.showType?? && c.showType == "userselect">
+					<#list c.javaFieldAttrs as a>
+		${c.simpleJavaField}.${a[1]} AS "${c.simpleJavaField}.${a[0]}",
+					</#list>
+				<#elseif c.showType?? && c.showType == "officeselect">
+					<#list c.javaFieldAttrs as a>
+		${c.simpleJavaField}.${a[1]} AS "${c.simpleJavaField}.${a[0]}",
+					</#list>
+				<#elseif c.showType?? && c.showType == "areaselect">
+					<#list c.javaFieldAttrs as a>
+		${c.simpleJavaField}.${a[1]} AS "${c.simpleJavaField}.${a[0]}",
+					</#list>
+				
+				</#if>
+			
+			</#list>
+		</#assign>
+${columnField?substring(0, columnField?last_index_of(","))}
+	</sql>
+	
+	<#-- 输出字段关联表 -->
+	<sql id="${className}Joins">
+	</sql>
+	<sql id="selectWhereCondition">
+	    <#list table.columnList as c>
+				 <#if c.javaType ?? && (c.javaType == 'java.util.Date')>
+				    <if test="${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if>">
+				<#elseif c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal'>
+				    <if test="${c.simpleJavaField} != null or (dynaBeanMap!=null and dynaBeanMap.containsKey('end${c.simpleJavaField?cap_first}') and end${c.simpleJavaField?cap_first} != null) <#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if>">
+				<#else>
+				    <if test="${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if> and ${c.javaFieldId} != ''">
+				</#if>
+					<#if c.queryType ?? && c.queryType == 'between'>
+				AND a.${c.name} BETWEEN ${"#"}{begin${c.simpleJavaField?cap_first}} AND ${"#"}{end${c.simpleJavaField?cap_first}}
+					<#elseif c.queryType ?? && c.queryType == 'like'>
+				AND a.${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}},'%')</if>
+					<#elseif c.queryType ?? && c.queryType == 'left_like'>
+				AND a.${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}})</if>
+					<#elseif c.queryType ?? && c.queryType == 'right_like'>
+				AND a.${c.name} LIKE 
+					<if test="dbName == 'oracle'">${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat(${"#"}{${c.javaFieldId}},'%')</if>
+					<#else>
+			 <#if c.javaType ?? && c.javaType == 'java.util.Date'>
+			        <choose>
+			             <when test="queryTimeStampMap!=null and queryTimeStampMap.containsKey('${c.simpleJavaField}')">
+			
+			                 AND a.${c.name}
+			             </when> 
+			             <otherwise>
+                            AND Date(a.${c.name})
+                         </otherwise>
+			          </choose> 
+			          <choose>
+			             <when test="dynaBeanMap!=null and dynaBeanMap.containsKey('end${c.simpleJavaField?cap_first}') and end${c.simpleJavaField?cap_first} != null">
+			                <if test="queryTimeStampMap!=null and queryTimeStampMap.containsKey('${c.simpleJavaField}')">
+			                     BETWEEN  ${"#"}{${c.simpleJavaField}}  AND  ${"#"}{end${c.simpleJavaField?cap_first}}
+			                </if> 
+			                <if test="!queryTimeStampMap.containsKey('${c.simpleJavaField}')">
+			                      BETWEEN  ${"#"}{${c.simpleJavaField},jdbcType=DATE}  AND  ${"#"}{end${c.simpleJavaField?cap_first},jdbcType=DATE}
+			                </if> 
+			             </when> 
+			             <otherwise>
+			                <if test="queryTimeStampMap!=null and queryTimeStampMap.containsKey('${c.simpleJavaField}')">
+			                      ${"$"}{relationOperMap.${c.simpleJavaField}}   ${"#"}{${c.simpleJavaField}}
+			                </if> 
+			                <if test="!queryTimeStampMap.containsKey('${c.simpleJavaField}')">
+			                      ${"$"}{relationOperMap.${c.simpleJavaField}}   ${"#"}{${c.simpleJavaField},jdbcType=DATE}
+			                </if> 
+                             
+                         </otherwise>  
+                      </choose>
+
+                <#elseif c.javaType ?? && (c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal')>
+                        <choose>
+                          <when test="${c.simpleJavaField} != null and (dynaBeanMap!=null and dynaBeanMap.containsKey('${c.simpleJavaField}') and end${c.simpleJavaField?cap_first} != null)">
+                               AND a.${c.name} BETWEEN  ${"#"}{${c.simpleJavaField}} AND ${"$"}{end${c.simpleJavaField?cap_first}}
+                          </when>                       
+                          <when test="${c.simpleJavaField} != null">
+                               <choose>
+                                   <when test="relationOperMap.containsKey('${c.simpleJavaField}')">
+                                        AND a.${c.name} ${"$"}{relationOperMap.${c.simpleJavaField}}  ${"#"}{${c.javaFieldId}} 
+                                  </when>
+                                  <otherwise>
+                                        AND a.${c.name} &gt;=  ${"#"}{${c.javaFieldId}} 
+                                  </otherwise>  
+                               </choose>
+                          </when>
+                          <otherwise>
+                               <choose>
+                                   <when test="relationOperMap.containsKey('${c.simpleJavaField}')">
+                                         AND a.${c.name} ${"$"}{relationOperMap.${c.simpleJavaField}}  ${"$"}{end${c.simpleJavaField?cap_first}}
+                                  </when>
+                                  <otherwise>
+                                        AND a.${c.name} &lt;=  ${"#"}{${c.javaFieldId}} 
+                                  </otherwise>  
+                               </choose>
+                          </otherwise>  
+                        </choose>
+                        
+				<#else>
+				     <choose>
+	                   <when  test="whereLikeMap.containsKey('${c.javaFieldId}')">
+			              AND a.${c.name}  like '%${"$"}{${c.javaFieldId}}%' 
+			          </when> 
+			          <when  test="whereInMap.containsKey('${c.javaFieldId}')">
+			              AND a.${c.name} ${"$"}{whereInMap.${c.simpleJavaField}} (${"$"}{${c.javaFieldId}})
+			          </when> 
+			          <otherwise>
+                          AND a.${c.name}  ${"$"}{relationOperMap.${c.simpleJavaField}}    ${"#"}{${c.javaFieldId}} 
+                      </otherwise>  
+			         </choose>
+			 </#if>
+		   
+	
+			   </#if>
+			</if>
+				
+			</#list>
+	</sql>
+	<sql id="deleteWhereCondition">
+	    <#list table.columnList as c>
+				  <#if c.javaType ?? && (c.javaType == 'java.util.Date'||c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal')>
+				    <if test="${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if>">
+				<#else>
+				    <if test="${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if> and ${c.javaFieldId} != ''">
+				</#if>
+
+					<#if c.queryType ?? && c.queryType == 'between'>
+				AND ${c.name} BETWEEN ${"#"}{begin${c.simpleJavaField?cap_first}} AND ${"#"}{end${c.simpleJavaField?cap_first}}
+					<#elseif c.queryType ?? && c.queryType == 'like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}},'%')</if>
+					<#elseif c.queryType ?? && c.queryType == 'left_like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}})</if>
+					<#elseif c.queryType ?? && c.queryType == 'right_like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat(${"#"}{${c.javaFieldId}},'%')</if>
+					<#else>
+			 <#if c.javaType ?? && c.javaType == 'java.util.Date'>
+			          
+			         AND ${c.name} BETWEEN ${"#"}{${c.simpleJavaField}} 
+			          <choose>
+			           <when test="dynaBeanMap!=null and dynaBeanMap.containsKey('end${c.simpleJavaField?cap_first}')  and end${c.simpleJavaField?cap_first} != null">
+				         AND ${"#"}{end${c.simpleJavaField?cap_first}}
+			          </when>
+			          <otherwise>
+                          AND ${"#"}{${c.simpleJavaField}}  
+                      </otherwise>  
+                      </choose>
+              <#elseif c.javaType ?? && (c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal')>
+                       <choose>
+                          <when test="relationOperMap.containsKey('${c.simpleJavaField}')">
+                              <choose>
+                                    <when test="relationOperMap.get('${c.simpleJavaField}')=='BETWEEN'">
+				                       AND a.${c.name} BETWEEN ${"$"}{${c.simpleJavaField}} AND ${"$"}{end${c.simpleJavaField?cap_first}}
+				                    </when> 
+			                        <otherwise>
+			                           AND a.${c.name} ${"$"}{relationOperMap.${c.simpleJavaField}}  ${"$"}{${c.simpleJavaField}}
+			                        </otherwise>  
+				              </choose>
+			              </when>
+			              <otherwise>
+                              AND a.${c.name} = ${"#"}{${c.javaFieldId}} 
+                           </otherwise>  
+                      </choose>
+				<#else>
+				     <choose>
+	                   <when  test="whereLikeMap.containsKey('${c.javaFieldId}')">
+			              AND ${c.name}  like '%${"$"}{${c.javaFieldId}}%'
+			          </when> 
+			          <when  test="whereInMap.containsKey('${c.javaFieldId}')">
+			              AND ${c.name} in (${"$"}{${c.javaFieldId}})
+			          </when> 
+			          <otherwise>
+                          AND ${c.name} = ${"#"}{${c.javaFieldId}} 
+                      </otherwise>  
+			         </choose>
+			 </#if>
+		   
+	
+			   </#if>
+			</if>
+				
+			</#list>
+	</sql>
+	
+
+			
+	<sql id="updateWhereCondition">
+	    <#list table.columnList as c>
+				  <#if c.javaType ?? && (c.javaType == 'java.util.Date'||c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal')>
+				    <if test="updateWhereConditionMap.containsKey('${c.simpleJavaField}') and updateWhereConditionMap.${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if>">
+				<#else>
+				    <if test="updateWhereConditionMap.containsKey('${c.simpleJavaField}') and  updateWhereConditionMap.${c.simpleJavaField} != null<#if c.simpleJavaField != c.javaFieldId> and ${c.javaFieldId} != null</#if> and updateWhereConditionMap.${c.javaFieldId} != ''">
+				</#if>
+
+					<#if c.queryType ?? && c.queryType == 'between'>
+				AND ${c.name} BETWEEN ${"#"}{begin${c.simpleJavaField?cap_first}} AND ${"#"}{end${c.simpleJavaField?cap_first}}
+					<#elseif c.queryType ?? && c.queryType == 'like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}},'%')</if>
+					<#elseif c.queryType ?? && c.queryType == 'left_like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">'%'||${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mssql'">'%'+${"#"}{${c.javaFieldId}}</if>
+					<if test="dbName == 'mysql'">concat('%',${"#"}{${c.javaFieldId}})</if>
+					<#elseif c.queryType ?? && c.queryType == 'right_like'>
+				AND ${c.name} LIKE 
+					<if test="dbName == 'oracle'">${"#"}{${c.javaFieldId}}||'%'</if>
+					<if test="dbName == 'mssql'">${"#"}{${c.javaFieldId}}+'%'</if>
+					<if test="dbName == 'mysql'">concat(${"#"}{${c.javaFieldId}},'%')</if>
+					<#else>
+			 <#if c.javaType ?? && c.javaType == 'java.util.Date'>
+			          
+			         AND ${c.name} BETWEEN ${"#"}{updateWhereConditionMap.${c.simpleJavaField}} 
+			          <choose>
+			           <when test="dynaBeanMap!=null and dynaBeanMap.containsKey('end${c.simpleJavaField?cap_first}')  and end${c.simpleJavaField?cap_first} != null">
+				         AND ${"#"}{updateWhereConditionMap.end${c.simpleJavaField?cap_first}}
+			          </when>
+			          <otherwise>
+                          AND ${"#"}{updateWhereConditionMap.${c.simpleJavaField}}  
+                      </otherwise>  
+                      </choose>
+             <#elseif c.javaType ?? && (c.javaType == 'Integer'||c.javaType == 'Double'||c.javaType == 'Short'||c.javaType == 'Long'||c.javaType == 'Float'||c.javaType == 'java.math.BigDecimal')>
+                       <choose>
+                          <when test="relationOperMap.containsKey('${c.simpleJavaField}')">
+                              <choose>
+                                    <when test="relationOperMap.get('${c.simpleJavaField}')=='BETWEEN'">
+				                       AND a.${c.name} BETWEEN ${"$"}{${c.simpleJavaField}} AND ${"$"}{end${c.simpleJavaField?cap_first}}
+				                    </when> 
+			                        <otherwise>
+			                           AND a.${c.name} ${"$"}{relationOperMap.${c.simpleJavaField}}  ${"$"}{${c.simpleJavaField}}
+			                        </otherwise>  
+				              </choose>
+			              </when>
+			              <otherwise>
+                              AND a.${c.name} = ${"#"}{${c.javaFieldId}} 
+                           </otherwise>  
+                      </choose>
+				<#else>
+				     <choose>
+	                   <when  test="whereLikeMap.containsKey('${c.javaFieldId}')">
+			              AND ${c.name}  like '%${"$"}{updateWhereConditionMap.${c.javaFieldId}}%'
+			          </when> 
+			          <when  test="whereInMap.containsKey('${c.javaFieldId}')">
+			              AND ${c.name} in (${"$"}{updateWhereConditionMap.${c.javaFieldId}})
+			          </when> 
+			          <otherwise>
+                          AND ${c.name} = ${"#"}{updateWhereConditionMap.${c.javaFieldId}} 
+                      </otherwise>  
+			         </choose>
+			 </#if>
+			   </#if>
+			</if>
+			</#list>
+	</sql>
+	
+	<sql id="updateSetCondition">
+	   	    <#assign updateField>		
+				<#list table.columnList as c>				
+				
+				 <if test="originValueCopyMap.containsKey('${c.javaFieldId}') or <#if c.javaFieldId?contains('.id')> (${c.javaFieldId?substring(0,(c.javaFieldId)?length-3)} != null and ${c.javaFieldId} != null ) <#else>${c.javaFieldId} != null </#if> ">
+			        ${c.name} = ${"#"}{${c.javaFieldId}},
+			     </if>
+				</#list>
+			</#assign>
+            ${updateField?substring(0, updateField?last_index_of(","))}
+			</if>
+	</sql>
+    <#assign x=0 />
+    <#list table.columnList as c>
+			<#if c.showType?? && c.showType == "umeditor">
+			<#assign x=1 />
+    <resultMap type="${ClassName}" id="${ClassName}Result" autoMapping="true">
+			<#break/>
+			</#if>
+	</#list>
+	<#list table.columnList as c>
+			<#if c.showType?? && c.showType == "umeditor">
+			<#assign x=1 />
+    	<result column="${c.name}" property="${c.simpleJavaField}"   typeHandler="com.jujienet.common.mapper.ConvertBlobTypeHandler"/>
+			</#if>
+	</#list>
+	<#list table.columnList as c>
+			<#if c.showType?? && c.showType == "umeditor">
+			<#assign x=1 />
+    </resultMap>
+			<#break/>
+			</#if>
+	</#list>
+    
+
+	<select id="getByWhere" <#if x==0>resultType="${ClassName}"</#if><#if x==1>resultMap="${ClassName}Result"</#if> >
+		SELECT 
+			<include refid="${className}Columns"/>
+		FROM ${table.name} a
+		<include refid="${className}Joins"/>
+		<where>
+			 <include refid="selectWhereCondition"/>
+		</where>
+	</select>
+	
+	<select id="get" <#if x==0>resultType="${ClassName}"</#if><#if x==1>resultMap="${ClassName}Result"</#if> >
+		SELECT 
+			<include refid="${className}Columns"/>
+		FROM ${table.name} a
+		<include refid="${className}Joins"/>
+		WHERE a.${primaryKeyName} = ${"#"}{${primaryKeyName}}
+	</select>
+	
+	<select id="findList" <#if x==0>resultType="${ClassName}"</#if><#if x==1>resultMap="${ClassName}Result"</#if> >
+		SELECT 
+			<include refid="${className}Columns"/>
+		FROM ${table.name} a
+		<include refid="${className}Joins"/>
+		<where>
+			 <include refid="selectWhereCondition"/>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${"$"}{page.orderBy}
+			</when>
+			<otherwise>
+				<#if table.updateDateExists>
+				  ORDER BY a.update_date DESC
+				</#if>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" <#if x==0>resultType="${ClassName}"</#if><#if x==1>resultMap="${ClassName}Result"</#if> >
+		SELECT 
+			<include refid="${className}Columns"/>
+		FROM ${table.name} a
+		<include refid="${className}Joins"/>
+		<where>
+
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${"$"}{page.orderBy}
+			</when>
+			<otherwise>
+    		</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ${table.name}(
+		<#assign insertField>
+			<#list table.columnList as c>
+			${c.name},
+			</#list>
+		</#assign>
+${insertField?substring(0, insertField?last_index_of(","))}
+		) VALUES (
+		<#assign insertJavaField>
+			<#list table.columnList as c>
+			${"#"}{${c.javaFieldId}},
+			</#list>
+		</#assign>
+${insertJavaField?substring(0, insertJavaField?last_index_of(","))}
+		)
+	</insert>
+	
+	<insert id="insertBatch">
+		INSERT INTO ${table.name}(
+		<#assign insertField>
+			<#list table.columnList as c>
+			${c.name},
+			</#list>
+		</#assign>
+${insertField?substring(0, insertField?last_index_of(","))}
+		) VALUES 
+		<foreach collection="list" item="itme" separator=",">
+		(
+		<#assign insertJavaField>
+			<#list table.columnList as c>
+			${"#"}{itme.${c.javaFieldId}},
+			</#list>
+		</#assign>
+${insertJavaField?substring(0, insertJavaField?last_index_of(","))}
+		)
+	  </foreach>
+	</insert>
+		<update id="update">
+		UPDATE ${table.name}
+		<set>
+		 <include refid="updateSetCondition"/>
+		</set>
+		WHERE ${primaryKeyName} = ${"#"}{${primaryKeyName}}
+	</update>
+	<update id="updateByWhere">
+		UPDATE tb_order_detail
+		<set>
+		 <include refid="updateSetCondition"/>
+		</set>
+		<where>
+		 <include refid="updateWhereCondition"/>
+       </where>
+
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ${table.name}
+     	<where>
+		 <include refid="deleteWhereCondition"/>
+       </where>
+
+	</update>
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ${table.name} SET 
+			del_flag = ${"#"}{DEL_FLAG_DELETE}
+	
+		WHERE ${primaryKeyName} = ${"#"}{${primaryKeyName}}
+
+	</update>
+	
+	<select id="findGroupByList" resultType="${ClassName}" >
+		SELECT 
+		 
+			<foreach collection="groupBySelectField" item="groupbySelectItem" index="index" open="" close="" separator="">
+			    <choose>
+			         <when  test="index ==0">
+			             ${"$"}{groupbySelectItem}
+			        </when> 
+				    <otherwise>
+                        ,${"$"}{groupbySelectItem}
+                    </otherwise>  
+			    </choose>
+            </foreach>
+            
+		FROM ${table.name} a
+		 
+		<where>
+			 <include refid="selectWhereCondition"/>			
+		</where>
+		 <foreach collection="groupByField" item="groupByFieldItem" index="index" open="" close="" separator=",">
+                    <if test="index==0">
+                     group by 
+                     </if>
+                    ${"$"}{groupByFieldItem}
+         </foreach>
+	</select>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="${ClassName}" >
+		select * FROM ${table.name}  where ${"$"}{propertyName} = ${"#"}{value}
+	</select>
+		<!-- 根据实体名称和字段名称和字段值获取list记录 -->
+	<select id="findListByProperty" resultType="${ClassName}" >
+		select * FROM ${table.name}  where ${"$"}{propertyName} = ${"#"}{value}
+	</select>
+	<select id="findAnyQuery"  resultType="${ClassName}" >
+		${"$"}{anySql}
+	</select>
+	<update id="updateAnySql">
+		${"$"}{anySql}
+	</update>
+	<update id="deleteByOneProperty">
+		DELETE FROM ${table.name}
+		WHERE ${"$"}{propertyName} = ${"#"}{value}
+	</update>
+	
+	
+	<!-- 更新一个字段 -->
+	<update id="updateForOneProperty">
+		UPDATE  ${table.name} SET 
+			${"$"}{updatePropertyName} = ${"#"}{updateValue}
+		
+				WHERE ${"$"}{wherePropertyName} = ${"#"}{whereValue}
+
+	</update>
+	 
+	
+</mapper>]]>
+	</content>
+</template>
