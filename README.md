@@ -43,6 +43,7 @@ public class BaseTests {
 }
 
 第二个类：
+
 public class FastGenCode  extends BaseTests {
 	
 	   @Autowired
