@@ -79,7 +79,7 @@ public class FastGenCode  extends BaseTests {
 
 直接执行该junit，即可生成到指定项目路径下相关类。
 
-4、如果是对现有项目的某些功能改造，如何改造以及案例说明，请参考csdn文章：
+4、如果是对现有项目的某些功能改造，如何改造以及案例说明，请参考csdn文章：https://blog.csdn.net/kevin_liang_feng/article/details/103337851
 
 5、另外，我们的mapper是主子结构，即子mapper继承主mapper，主mapper就是根据数据库表生成的mapper文件，子mapper是用来手工增加方法的，这样当数据库变化时，直接覆盖主mapper即可，但是目前为止 ，我们还没有需要手工增加方法的必要，同时dao层也是与mapper文件对应的继承关系
 生成的代码中，
@@ -98,3 +98,6 @@ public class SysNoticeService extends CrudService<SysNoticeDao, SysNotice>
 SysNoticeDao.xml
 SysNoticeMainDao.xml
 
+最后：
+本项目的演变过程，请参考：https://blog.csdn.net/kevin_liang_feng/article/details/103014240
+如何用对现有项目改造增加动态sql和动态bean，请参考：https://blog.csdn.net/kevin_liang_feng/article/details/103337851
