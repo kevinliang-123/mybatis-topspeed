@@ -1,22 +1,34 @@
 1、	引入我们的jar包。这里我们用的是druid的1.11.14，是因为该项目用的是这个版本 ，也可以用更老的版本    
 
 2、	需要在mybatis-config.xml中增加如下几个拦截器：
- <plugins>
-    <plugin interceptor="com.tengjie.common.persistence.interceptor.PaginationInterceptor" />分页拦截器
-    <plugin interceptor="com.tengjie.common.persistence.interceptor.MapperModifyPlugin" />动态sql拦截器
-    <plugin interceptor="com.tengjie.common.persistence.interceptor.ResultSetInterceptor" />结果集拦截器
-</plugins>
+
+    <plugins>
+	
+	
+    <plugin interceptor="com.tengjie.common.persistence.interceptor.PaginationInterceptor"/>分页拦截器
+    
+    <plugin interceptor="com.tengjie.common.persistence.interceptor.MapperModifyPlugin"/>动态sql拦截器
+   
+    <plugin interceptor="com.tengjie.common.persistence.interceptor.ResultSetInterceptor"/>结果集拦截器
+    
+   
+    </plugins>
+
 
 3、使用我们的代码生成器 ，我们可以生成如下代码：
 1:entity 2 mainMapper 4 service 5：dao 6:extdao 7:mapper
 调用方式如下，在您的项目中建立junit两个类
 
+第一个类：
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = RuoYiApplication.class)
 //由于是Web项目，Junit需要模拟ServletContext，因此我们需要给我们的测试类加上@WebAppConfiguration。
-@WebAppConfiguration
+   @WebAppConfiguration
 public class BaseTests {
-	@Before
+
+    @Before
+    
     public void init() {
         System.out.println("开始测试-----------------");
     }
@@ -27,6 +39,8 @@ public class BaseTests {
     }
 
 }
+
+第二个类：
 public class FastGenCode  extends BaseTests {
 	
 	   @Autowired
