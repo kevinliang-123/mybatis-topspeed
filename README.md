@@ -80,3 +80,19 @@ public class FastGenCode  extends BaseTests {
 4、如果是对现有项目的某些功能改造，如何改造，请参考csdn文章：
 
 5、另外，我们的mapper是主子结构，即子mapper继承主mapper，主mapper就是根据数据库表生成的mapper文件，子mapper是用来手工增加方法的，这样当数据库变化时，直接覆盖主mapper即可，但是目前为止 ，我们还没有需要手工增加方法的必要，同时dao层也是与mapper文件对应的继承关系
+生成的代码中，
+有一个实体：
+public class SysNotice extends TjBaseEntity<SysNotice> 
+两个dao：
+@MyBatisDao
+public interface SysNoticeDao extends SysNoticeMainDao 
+@MyBatisDao
+public interface SysNoticeMainDao extends CrudDao<SysNotice> 
+一个service：
+@Service
+@Transactional(readOnly = true)
+public class SysNoticeService extends CrudService<SysNoticeDao, SysNotice>
+两个mapper：
+SysNoticeDao.xml
+SysNoticeMainDao.xml
+
