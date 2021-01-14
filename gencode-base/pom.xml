@@ -33,7 +33,7 @@
 		<xstream.version>1.4.7</xstream.version>
 		<guava.version>17.0</guava.version>
 		<dozer.version>5.5.1</dozer.version>
-		<poi.version>3.9</poi.version>
+		<poi.version>4.1.2</poi.version>
 		<freemarker.version>2.3.27-incubating</freemarker.version>
 		<ckfinder.version>2.3</ckfinder.version>
 		<websocket.version>1.3.0</websocket.version>		 
